@@ -8,7 +8,7 @@ resource "oci_core_network_security_group" "this" {
   display_name   = "${var.project_name}-${replace(each.key, "_", "-")}-nsg"
 }
 
-# Ingress rules - for_each over local.ingress_rules_flat (defined in locals.tf)
+# Ingress rules - for_each over local.ingress_rules_flat 
 resource "oci_core_network_security_group_security_rule" "ingress" {
   for_each = local.ingress_rules_flat
 
@@ -38,7 +38,7 @@ resource "oci_core_network_security_group_security_rule" "ingress" {
   }
 }
 
-# Egress rules - for_each over local.egress_rules_flat (defined in locals.tf)
+# Egress rules - for_each over local.egress_rules_flat
 resource "oci_core_network_security_group_security_rule" "egress" {
   for_each = local.egress_rules_flat
 
