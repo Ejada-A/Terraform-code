@@ -16,9 +16,8 @@ Ensure the following CLI tools are installed and configured on your machine:
 
 ---
 
-## 🔐 2. OCI Vault (Secrets Management)
+## 🔐 2.
 
-All sensitive credentials are stored in OCI Vault and fetched at runtime — no plaintext secrets in code.
 
 ### GitHub Repository Secrets Required
 
@@ -37,15 +36,6 @@ Add the following secrets to your GitHub repository under **Settings → Secrets
 | `VAULT_OCIR_AUTH_TOKEN_OCID` | OCID of the OCIR Auth Token vault secret |
 | `VAULT_STRIPE_SECRET_KEY_OCID` | OCID of the Stripe secret key vault secret |
 | `VAULT_JWT_SECRET_OCID` | OCID of the JWT secret vault secret |
-
-### Vault Secret OCIDs (after Terraform apply)
-After running `terraform apply`, the Vault and secret OCIDs are printed in the Terraform outputs. Copy each `*_secret_id` output value and store them as the GitHub secrets above.
-
-```bash
-# Get vault outputs after terraform apply:
-cd /home/ali_hamad/terraform/Project/Terraform-code
-terraform output vault_id
-terraform output -json | jq '.'
 ```
 
 
