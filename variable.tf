@@ -60,7 +60,7 @@ variable "ssh_allowed_cidr" {
 variable "node_shape" {
   description = "Compute shape for OKE worker nodes"
   type        = string
-  default     = "VM.Standard.E4.Flex"
+  default     = "VM.Standard.A1.Flex"
 }
 
 variable "node_ocpus" {
