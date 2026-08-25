@@ -1,126 +1,126 @@
 # Default values for ecommerce-app Helm chart
 
 global:
-    namespace: ecommerce-ns
-    ocirRegistry: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp
-    imagePullPolicy: Always
-    imagePullSecretName: ocir-secret
+  namespace: ecommerce-ns
+  ocirRegistry: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp
+  imagePullPolicy: Always
+  imagePullSecretName: ocir-secret
 
 mongodb:
+  enabled: true
+  image:
+    repository: mongo
+    tag: "7.0"
+  port: 27017
+  serviceName: mongodb
+  persistence:
     enabled: true
-    image:
-        repository: mongo
-        tag: "7.0"
-    port: 27017
-    serviceName: mongodb
-    persistence:
-        enabled: true
-        storageClass: oci-bv
-        size: 10Gi
-    resources:
-        requests:
-            cpu: 200m
-            memory: 512Mi
-        limits:
-            cpu: 1000m
-            memory: 1Gi
+    storageClass: oci-bv
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
 
 secrets:
-    jwtSecret: "super_secret_jwt_key_for_ejada_store"
-    stripeSecretKey: "sk_test_51SywZwRtNiYE69jKmLfqpN6mTl86EBDgKZctMJ5SnYgBRXk39eLOJv2a7HZ1Cbk4aRC9UcGTBY8ICPaiEpETRQKs00m7aiJo60"
-    adminEmail: "admin@ejadastore.com"
-    adminPassword: "secure_admin_password_123"
+  jwtSecret: "super_secret_jwt_key_for_ejada_store"
+  stripeSecretKey: "sk_test_51SywZwRtNiYE69jKmLfqpN6mTl86EBDgKZctMJ5SnYgBRXk39eLOJv2a7HZ1Cbk4aRC9UcGTBY8ICPaiEpETRQKs00m7aiJo60"
+  adminEmail: "admin@ejadastore.com"
+  adminPassword: "secure_admin_password_123"
 
 authService:
-    name: auth-service
-    replicaCount: 2
-    image:
-        repository: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp/auth-service
-        tag: latest
-    port: 5001
-    healthPath: /health
-    resources:
-        requests:
-            cpu: 100m
-            memory: 128Mi
-        limits:
-            cpu: 500m
-            memory: 256Mi
+  name: auth-service
+  replicaCount: 2
+  image:
+    repository: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp/auth-service
+    tag: latest
+  port: 5001
+  healthPath: /health
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
 
 productsService:
-    name: products-service
-    replicaCount: 2
-    image:
-        repository: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp/products-service
-        tag: latest
-    port: 5002
-    healthPath: /health
-    resources:
-        requests:
-            cpu: 100m
-            memory: 128Mi
-        limits:
-            cpu: 500m
-            memory: 256Mi
+  name: products-service
+  replicaCount: 2
+  image:
+    repository: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp/products-service
+    tag: latest
+  port: 5002
+  healthPath: /health
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
 
 ordersService:
-    name: orders-service
-    replicaCount: 2
-    image:
-        repository: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp/orders-service
-        tag: latest
-    port: 5003
-    healthPath: /health
-    resources:
-        requests:
-            cpu: 100m
-            memory: 128Mi
-        limits:
-            cpu: 500m
-            memory: 256Mi
+  name: orders-service
+  replicaCount: 2
+  image:
+    repository: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp/orders-service
+    tag: latest
+  port: 5003
+  healthPath: /health
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
 
 paymentsService:
-    name: payments-service
-    replicaCount: 2
-    image:
-        repository: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp/payments-service
-        tag: latest
-    port: 5004
-    healthPath: /health
-    resources:
-        requests:
-            cpu: 100m
-            memory: 128Mi
-        limits:
-            cpu: 500m
-            memory: 256Mi
+  name: payments-service
+  replicaCount: 2
+  image:
+    repository: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp/payments-service
+    tag: latest
+  port: 5004
+  healthPath: /health
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
 
 ecommUi:
-    name: ecomm-ui
-    replicaCount: 2
-    image:
-        repository: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp/ecomm-ui
-        tag: latest
-    port: 3000
-    service:
-        type: LoadBalancer
-        annotations:
-            service.beta.kubernetes.io/oci-load-balancer-shape: "100Mbps"
-    resources:
-        requests:
-            cpu: 200m
-            memory: 256Mi
-        limits:
-            cpu: 1000m
-            memory: 512Mi
+  name: ecomm-ui
+  replicaCount: 2
+  image:
+    repository: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp/ecomm-ui
+    tag: latest
+  port: 3000
+  service:
+    type: LoadBalancer
+    annotations:
+      service.beta.kubernetes.io/oci-load-balancer-shape: "100Mbps"
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 512Mi
 
 ingress:
-    enabled: true
-    className: nginx
-    host: ecommerce.ejadastore.com
+  enabled: true
+  className: nginx
+  host: ecommerce.ejadastore.com
 
 autoscaling:
-    enabled: true
-    minReplicas: 2
-    maxReplicas: 5
-    targetCPUUtilizationPercentage: 75
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 75

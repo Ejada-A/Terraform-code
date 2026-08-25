@@ -4,10 +4,11 @@ locals {
 
   # Collection of microservices for dynamic OCIR repository creation
   microservices = toset([
-    "auth-app",
-    "product-app",
-    "cart-app",
-    "purchase-app"
+    "auth-service",
+    "products-service",
+    "orders-service",
+    "payments-service",
+    "ecomm-ui"
   ])
 
   common_tags = {

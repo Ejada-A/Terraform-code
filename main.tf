@@ -52,7 +52,7 @@ resource "oci_artifacts_container_repository" "microservices" {
   for_each = local.microservices
 
   compartment_id = var.compartment_ocid
-  display_name   = "${var.project_name}-${each.value}"
+  display_name   = "shared-group-a-cmp/${each.value}"
   is_public      = false
   is_immutable   = false
 }
