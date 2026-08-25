@@ -274,7 +274,7 @@ locals {
         description = "Pod to API endpoint communication"
         protocol    = "6"
         destination = local.cidr["api_endpoint"]
-        port_min    = 122500
+        port_min    = 12250
         port_max    = 12250
       }
       ],
