@@ -5,7 +5,7 @@ terraform {
       version = ">= 5.30.0"
     }
   }
-  backend "http" {}
+  # backend "http" {}
 
 
 }

@@ -17,7 +17,7 @@ resource "oci_containerengine_cluster" "oke_cluster" {
   endpoint_config {
     is_public_ip_enabled = var.is_public_ip_enabled
     subnet_id            = var.api_endpoint_subnet_id
-    nsg_ids              = var.api_endpoint_nsg_ids 
+    nsg_ids              = var.api_endpoint_nsg_ids
   }
 
   cluster_pod_network_options {
@@ -57,7 +57,7 @@ resource "oci_containerengine_node_pool" "oke_node_pool" {
   }
 
   node_config_details {
-    size = var.node_pool_size
+    size    = var.node_pool_size
     nsg_ids = var.worker_nodes_nsg_ids
 
     dynamic "placement_configs" {

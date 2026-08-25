@@ -2,12 +2,13 @@
 module "network" {
   source = "./modules/network"
 
-  compartment_ocid               = var.compartment_ocid
-  project_name                   = local.prefix 
-  
-  enable_worker_ssh_access       = true 
+  compartment_ocid = var.compartment_ocid
+  project_name     = local.prefix
+
+  enable_worker_ssh_access       = true
   enable_worker_general_outbound = true
   enable_pods_outbound_internet  = true
+  enable_nodeport_public_access  = true
   enable_flow_logs               = false
 }
 
@@ -15,24 +16,24 @@ module "network" {
 module "oke" {
   source = "./modules/oke"
 
-  compartment_id         = var.compartment_ocid
-  vcn_id                 = module.network.vcn_id
-  
+  compartment_id = var.compartment_ocid
+  vcn_id         = module.network.vcn_id
+
   api_endpoint_subnet_id = module.network.subnet_ids["api_endpoint"]
   worker_nodes_subnet_id = module.network.subnet_ids["worker_nodes"]
   pods_subnet_id         = module.network.subnet_ids["pods"]
 
   # --- Security & Access ---
-  api_endpoint_nsg_ids   = [module.network.nsg_ids["api_endpoint"]]
-  worker_nodes_nsg_ids   = [module.network.nsg_ids["worker_nodes"]]
-  pods_nsg_ids           = [module.network.nsg_ids["pods"]]
+  api_endpoint_nsg_ids = [module.network.nsg_ids["api_endpoint"]]
+  worker_nodes_nsg_ids = [module.network.nsg_ids["worker_nodes"]]
+  pods_nsg_ids         = [module.network.nsg_ids["pods"]]
 
-  ssh_public_key         = var.ssh_public_key
+  ssh_public_key = var.ssh_public_key
 
   # --- OKE Cluster Configurations ---
-  cluster_display_name   = "${local.prefix}-cluster"
-  kubernetes_version     = "v1.34.2"
-  is_public_ip_enabled   = true
+  cluster_display_name = "${local.prefix}-cluster"
+  kubernetes_version   = "v1.34.2"
+  is_public_ip_enabled = true
 
   # --- Node Pool Configurations ---
   node_pool_display_name = "${local.prefix}-node-pool"
@@ -70,7 +71,7 @@ resource "oci_artifacts_container_repository" "microservices" {
 #   compartment_id = var.compartment_ocid
 #   name           = "${local.prefix}-oke-nodes-policy"
 #   description    = "Allow OKE nodes to pull images and read secrets[cite: 2]"
-  
+
 #   statements = [
 #     "Allow dynamic-group ${oci_identity_dynamic_group.oke_nodes.name} to read repos in compartment id ${var.compartment_ocid}",
 #     "Allow dynamic-group ${oci_identity_dynamic_group.oke_nodes.name} to read secret-family in compartment id ${var.compartment_ocid}"

@@ -1,0 +1,53 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ecommerce-ingress
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "ecommerce-app.labels" . | nindent 4 }}
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.className | quote }}
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+  - host: {{ .Values.ingress.host | quote }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.ecommUi.name }}
+            port:
+              number: 80
+      - path: /api/auth
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.authService.name }}
+            port:
+              number: {{ .Values.authService.port }}
+      - path: /api/products
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.productsService.name }}
+            port:
+              number: {{ .Values.productsService.port }}
+      - path: /api/orders
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.ordersService.name }}
+            port:
+              number: {{ .Values.ordersService.port }}
+      - path: /api/payments
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.paymentsService.name }}
+            port:
+              number: {{ .Values.paymentsService.port }}
+{{- end }}

@@ -25,7 +25,7 @@ variable "subnets" {
   }))
   default = {
     api_endpoint = {
-      cidr_block = "10.0.0.0/28"   # 10.0.0.0 - 10.0.0.15 - Kubernetes API access (kubectl)
+      cidr_block = "10.0.0.0/28" # 10.0.0.0 - 10.0.0.15 - Kubernetes API access (kubectl)
       is_public  = true
     }
     load_balancer = {
@@ -37,8 +37,8 @@ variable "subnets" {
       is_public  = false
     }
     pods = {
-      cidr_block = "10.0.32.0/19"  # 10.0.32.0 - 10.0.63.255 - larger than worker nodes:
-      is_public  = false            # each node hosts many pods, each needing its own IP
+      cidr_block = "10.0.32.0/19" # 10.0.32.0 - 10.0.63.255 - larger than worker nodes:
+      is_public  = false          # each node hosts many pods, each needing its own IP
     }
   }
 }

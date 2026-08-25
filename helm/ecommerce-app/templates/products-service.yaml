@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.productsService.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.productsService.name }}
+    {{- include "ecommerce-app.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.productsService.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.productsService.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.productsService.name }}
+    spec:
+      {{- if .Values.global.imagePullSecretName }}
+      imagePullSecrets:
+      - name: {{ .Values.global.imagePullSecretName }}
+      {{- end }}
+      containers:
+      - name: {{ .Values.productsService.name }}
+        image: "{{ .Values.productsService.image.repository }}:{{ .Values.productsService.image.tag }}"
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.productsService.port }}
+          name: http
+        env:
+        - name: PORT
+          value: "{{ .Values.productsService.port }}"
+        - name: MONGODB_URI
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: MONGODB_URI
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.productsService.healthPath }}
+            port: {{ .Values.productsService.port }}
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.productsService.healthPath }}
+            port: {{ .Values.productsService.port }}
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          {{- toYaml .Values.productsService.resources | nindent 10 }}
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.productsService.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.productsService.name }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.productsService.name }}
+  ports:
+  - port: {{ .Values.productsService.port }}
+    targetPort: {{ .Values.productsService.port }}
+    name: http

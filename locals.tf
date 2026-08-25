@@ -1,7 +1,7 @@
 locals {
   # Standardize naming across the project
   prefix = "${var.project_name}-${var.environment}"
-  
+
   # Collection of microservices for dynamic OCIR repository creation
   microservices = toset([
     "auth-app",

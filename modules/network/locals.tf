@@ -12,6 +12,13 @@ locals {
     # Kubernetes API Endpoint subnet - Ingress
     api_endpoint = concat([
       {
+        description = "External access to Kubernetes API endpoint"
+        protocol    = "6"
+        source      = "0.0.0.0/0"
+        port_min    = 6443
+        port_max    = 6443
+      },
+      {
         description = "Worker to API endpoint communication"
         protocol    = "6"
         source      = local.cidr["worker_nodes"]
@@ -51,6 +58,13 @@ locals {
 
     # Load Balancer subnet - Ingress
     load_balancer = [
+      {
+        description = "Public HTTP traffic to the Load Balancer"
+        protocol    = "6"
+        source      = "0.0.0.0/0"
+        port_min    = 80
+        port_max    = 80
+      },
       {
         description = "Public traffic to the Load Balancer"
         protocol    = "6"
@@ -260,7 +274,7 @@ locals {
         description = "Pod to API endpoint communication"
         protocol    = "6"
         destination = local.cidr["api_endpoint"]
-        port_min    = 12250
+        port_min    = 122500
         port_max    = 12250
       }
       ],

@@ -1,0 +1,66 @@
+{{- if .Values.mongodb.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pvc
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: mongodb
+spec:
+  storageClassName: {{ .Values.mongodb.persistence.storageClass }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.mongodb.persistence.size }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.mongodb.serviceName }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: "{{ .Values.mongodb.image.repository }}:{{ .Values.mongodb.image.tag }}"
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.mongodb.port }}
+          name: mongodb
+        resources:
+          {{- toYaml .Values.mongodb.resources | nindent 10 }}
+        volumeMounts:
+        - mountPath: /data/db
+          name: mongodb-storage
+      volumes:
+      - name: mongodb-storage
+        persistentVolumeClaim:
+          claimName: mongodb-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.mongodb.serviceName }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: mongodb
+spec:
+  type: ClusterIP
+  selector:
+    app: mongodb
+  ports:
+  - port: {{ .Values.mongodb.port }}
+    targetPort: {{ .Values.mongodb.port }}
+    name: mongodb
+{{- end }}

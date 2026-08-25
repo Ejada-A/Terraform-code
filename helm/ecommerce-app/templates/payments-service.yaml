@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.paymentsService.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.paymentsService.name }}
+    {{- include "ecommerce-app.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.paymentsService.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.paymentsService.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.paymentsService.name }}
+    spec:
+      {{- if .Values.global.imagePullSecretName }}
+      imagePullSecrets:
+      - name: {{ .Values.global.imagePullSecretName }}
+      {{- end }}
+      containers:
+      - name: {{ .Values.paymentsService.name }}
+        image: "{{ .Values.paymentsService.image.repository }}:{{ .Values.paymentsService.image.tag }}"
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.paymentsService.port }}
+          name: http
+        env:
+        - name: PORT
+          value: "{{ .Values.paymentsService.port }}"
+        - name: MONGODB_URI
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: MONGODB_URI
+        - name: STRIPE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: STRIPE_SECRET_KEY
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.paymentsService.healthPath }}
+            port: {{ .Values.paymentsService.port }}
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.paymentsService.healthPath }}
+            port: {{ .Values.paymentsService.port }}
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          {{- toYaml .Values.paymentsService.resources | nindent 10 }}
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.paymentsService.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.paymentsService.name }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.paymentsService.name }}
+  ports:
+  - port: {{ .Values.paymentsService.port }}
+    targetPort: {{ .Values.paymentsService.port }}
+    name: http

@@ -1,0 +1,9 @@
+apiVersion: v2
+name: ecommerce-app
+description: Helm chart for Ejada E-Commerce Microservices Application on Oracle Kubernetes Engine (OKE)
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+maintainers:
+  - name: Ali Hamad
+    email: ali@ejadastore.com

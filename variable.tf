@@ -9,18 +9,18 @@ variable "compartment_ocid" {
 }
 
 variable "user_ocid" {
-    description = "The OCID of the OCI user"
-    type        = string
+  description = "The OCID of the OCI user"
+  type        = string
 }
 
 variable "fingerprint" {
-    description = "The fingerprint of the OCI API key"
-    type        = string
+  description = "The fingerprint of the OCI API key"
+  type        = string
 }
 
 variable "private_key_path" {
-    description = "The path to the OCI API private key file"
-    type        = string
+  description = "The path to the OCI API private key file"
+  type        = string
 }
 
 

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: ecommerce-ns
+data:
+  MONGODB_URI: "mongodb://mongodb.ecommerce-ns.svc.cluster.local:27017/ecommerce"
+  AUTH_SERVICE_URL: "http://auth-service.ecommerce-ns.svc.cluster.local:5001"
+  PRODUCT_SERVICE_URL: "http://products-service.ecommerce-ns.svc.cluster.local:5002"
+  ORDER_SERVICE_URL: "http://orders-service.ecommerce-ns.svc.cluster.local:5003"
+  PAYMENT_SERVICE_URL: "http://payments-service.ecommerce-ns.svc.cluster.local:5004"
+  PORT_AUTH: "5001"
+  PORT_PRODUCTS: "5002"
+  PORT_ORDERS: "5003"
+  PORT_PAYMENTS: "5004"
+  PORT_UI: "3000"

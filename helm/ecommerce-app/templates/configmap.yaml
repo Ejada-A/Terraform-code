@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "ecommerce-app.labels" . | nindent 4 }}
+data:
+  MONGODB_URI: "mongodb://mongodb.{{ .Values.global.namespace }}.svc.cluster.local:27017/ecommerce"
+  AUTH_SERVICE_URL: "http://auth-service.{{ .Values.global.namespace }}.svc.cluster.local:5001"
+  PRODUCT_SERVICE_URL: "http://products-service.{{ .Values.global.namespace }}.svc.cluster.local:5002"
+  ORDER_SERVICE_URL: "http://orders-service.{{ .Values.global.namespace }}.svc.cluster.local:5003"
+  PAYMENT_SERVICE_URL: "http://payments-service.{{ .Values.global.namespace }}.svc.cluster.local:5004"
+  PORT_AUTH: "{{ .Values.authService.port }}"
+  PORT_PRODUCTS: "{{ .Values.productsService.port }}"
+  PORT_ORDERS: "{{ .Values.ordersService.port }}"
+  PORT_PAYMENTS: "{{ .Values.paymentsService.port }}"
+  PORT_UI: "{{ .Values.ecommUi.port }}"

@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments-service
+  namespace: ecommerce-ns
+  labels:
+    app: payments-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payments-service
+  template:
+    metadata:
+      labels:
+        app: payments-service
+    spec:
+      imagePullSecrets:
+      - name: ocir-secret
+      containers:
+      - name: payments-service
+        image: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp/payments-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5004
+          name: http
+        env:
+        - name: PORT
+          value: "5004"
+        - name: MONGODB_URI
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: MONGODB_URI
+        - name: STRIPE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: STRIPE_SECRET_KEY
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5004
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5004
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments-service
+  namespace: ecommerce-ns
+  labels:
+    app: payments-service
+spec:
+  type: ClusterIP
+  selector:
+    app: payments-service
+  ports:
+  - port: 5004
+    targetPort: 5004
+    name: http

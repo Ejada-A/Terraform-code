@@ -10,6 +10,6 @@ resource "oci_core_subnet" "this" {
   display_name               = "${var.project_name}-${replace(each.key, "_", "-")}-subnet"
   dns_label                  = replace(each.key, "_", "")
   route_table_id             = each.value.is_public ? oci_core_route_table.public_rt.id : oci_core_route_table.private_rt.id
-  security_list_ids          = [oci_core_vcn.main.default_security_list_id]  
+  security_list_ids          = [oci_core_vcn.main.default_security_list_id]
   prohibit_public_ip_on_vnic = !each.value.is_public
 }

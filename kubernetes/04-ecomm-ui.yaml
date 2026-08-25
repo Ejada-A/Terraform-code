@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecomm-ui
+  namespace: ecommerce-ns
+  labels:
+    app: ecomm-ui
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ecomm-ui
+  template:
+    metadata:
+      labels:
+        app: ecomm-ui
+    spec:
+      imagePullSecrets:
+      - name: ocir-secret
+      containers:
+      - name: ecomm-ui
+        image: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp/ecomm-ui:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: PORT
+          value: "3000"
+        - name: MONGODB_URI
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: MONGODB_URI
+        - name: AUTH_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: AUTH_SERVICE_URL
+        - name: PRODUCT_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: PRODUCT_SERVICE_URL
+        - name: ORDER_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: ORDER_SERVICE_URL
+        - name: PAYMENT_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: PAYMENT_SERVICE_URL
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: JWT_SECRET
+        - name: STRIPE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: STRIPE_SECRET_KEY
+        - name: ADMIN_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: ADMIN_EMAIL
+        - name: ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: ADMIN_PASSWORD
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 512Mi
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ecomm-ui-lb
+  namespace: ecommerce-ns
+  labels:
+    app: ecomm-ui
+  annotations:
+    service.beta.kubernetes.io/oci-load-balancer-shape: "100Mbps"
+spec:
+  type: LoadBalancer
+  selector:
+    app: ecomm-ui
+  ports:
+  - port: 80
+    targetPort: 3000
+    name: http

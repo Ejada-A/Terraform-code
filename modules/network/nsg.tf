@@ -13,11 +13,11 @@ resource "oci_core_network_security_group_security_rule" "ingress" {
   for_each = local.ingress_rules_flat
 
   network_security_group_id = oci_core_network_security_group.this[each.value.nsg_key].id
-  direction                  = "INGRESS"
-  protocol                   = each.value.protocol
-  source                     = each.value.source
-  source_type                = each.value.source == local.oci_services_cidr ? "SERVICE_CIDR_BLOCK" : "CIDR_BLOCK"
-  description                = each.value.description
+  direction                 = "INGRESS"
+  protocol                  = each.value.protocol
+  source                    = each.value.source
+  source_type               = each.value.source == local.oci_services_cidr ? "SERVICE_CIDR_BLOCK" : "CIDR_BLOCK"
+  description               = each.value.description
 
   dynamic "tcp_options" {
     for_each = each.value.protocol == "6" && try(each.value.port_min, null) != null ? [1] : []
@@ -43,11 +43,11 @@ resource "oci_core_network_security_group_security_rule" "egress" {
   for_each = local.egress_rules_flat
 
   network_security_group_id = oci_core_network_security_group.this[each.value.nsg_key].id
-  direction                  = "EGRESS"
-  protocol                   = each.value.protocol
-  destination                = each.value.destination
-  destination_type           = each.value.destination == local.oci_services_cidr ? "SERVICE_CIDR_BLOCK" : "CIDR_BLOCK"
-  description                = each.value.description
+  direction                 = "EGRESS"
+  protocol                  = each.value.protocol
+  destination               = each.value.destination
+  destination_type          = each.value.destination == local.oci_services_cidr ? "SERVICE_CIDR_BLOCK" : "CIDR_BLOCK"
+  description               = each.value.description
 
   dynamic "tcp_options" {
     for_each = each.value.protocol == "6" && try(each.value.port_min, null) != null ? [1] : []
