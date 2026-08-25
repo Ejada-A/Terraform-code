@@ -1,7 +1,8 @@
-## OKE Cluster Module
+# OKE Cluster Module
 
-### Description
-This Terraform module provisions a managed Oracle Kubernetes Engine (OKE) cluster and its associated worker node pool on Oracle Cloud Infrastructure (OCI). 
+## Description
+
+This Terraform module provisions a managed Oracle Kubernetes Engine (OKE) cluster and its associated worker node pool on Oracle Cloud Infrastructure (OCI).
 
 It is architected strictly for **VCN-native pod networking** and integrates deeply with **Network Security Groups (NSGs)** to decouple security rules from subnet topology. The module dynamically distributes compute resources across available domains, injects an SSH key for node troubleshooting, and requires explicit variable passing from a root orchestrator to ensure architectural compliance.
 

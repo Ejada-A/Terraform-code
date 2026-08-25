@@ -1,0 +1,21 @@
+tenancy_ocid      = ""
+user_ocid         = ""
+fingerprint       = ""
+private_key_path  = ""
+region            = "me-jeddah-1"
+
+compartment_ocid    = ""
+availability_domains = ["oXVt:ME-JEDDAH-1-AD-1"]
+
+project_name       = "groupa"
+
+
+environment        = "prod"
+
+ssh_public_key     = ""
+
+ssh_allowed_cidr   = "" # Replace with your corporate VPN IP
+
+node_shape = "VM.Standard.A1.Flex" # change it according to your needs
+
+

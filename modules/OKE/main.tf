@@ -30,6 +30,12 @@ resource "oci_containerengine_cluster" "oke_cluster" {
       is_tiller_enabled               = false
     }
   }
+
+  timeouts {
+    create = "30m"
+    update = "30m"
+    delete = "30m"
+  }
 }
 
 resource "oci_containerengine_node_pool" "oke_node_pool" {
@@ -61,15 +67,20 @@ resource "oci_containerengine_node_pool" "oke_node_pool" {
         subnet_id           = var.worker_nodes_subnet_id
       }
     }
+    node_pool_pod_network_option_details {
+      cni_type       = "OCI_VCN_IP_NATIVE"
+      pod_subnet_ids = [var.pods_subnet_id]
+      pod_nsg_ids    = var.pods_nsg_ids
+    }
   }
 
-  node_pool_pod_network_option_details {
-    cni_type       = "OCI_VCN_IP_NATIVE"
-    pod_subnet_ids = [var.pods_subnet_id]
-    pod_nsg_ids    = var.pods_nsg_ids
-  }
 
   node_eviction_node_pool_settings {
     eviction_grace_duration = "PT60M"
+  }
+  timeouts {
+    create = "45m"
+    update = "45m"
+    delete = "45m"
   }
 }
