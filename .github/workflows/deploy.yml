@@ -136,8 +136,9 @@ jobs:
           export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
           kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
 
-      # ─── 13. Apply ArgoCD Config (Deploys App) ────────────────────
+      # ─── 13. Apply ArgoCD Config (Deploys App & Ingress) ─────────────
       - name: Apply ArgoCD Config
         run: |
           export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
           kubectl apply -f argocd/ecommerce-app.yaml
+          kubectl apply -f argocd/argocd-ingress.yaml
