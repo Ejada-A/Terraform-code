@@ -12,3 +12,8 @@ output "kubeconfig_command" {
   description = "Run this OCI CLI command to generate your local kubeconfig"
   value       = "oci ce cluster create-kubeconfig --cluster-id ${module.oke.cluster_id} --file $HOME/.kube/config --region ${var.region} --token-version 2.0.0  --kube-endpoint PUBLIC_ENDPOINT"
 }
+
+output "load_balancer_subnet_id" {
+  description = "The OCID of the public subnet for Load Balancers"
+  value       = module.network.load_balancer_subnet_id
+}

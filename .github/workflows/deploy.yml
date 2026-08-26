@@ -52,11 +52,14 @@ jobs:
           terraform init
           # terraform apply -auto-approve
 
-      # ─── 5. Extract Cluster OCID ──────────────────────────────────
-      - name: Extract Cluster OCID
+      # ─── 5. Extract Terraform Outputs ─────────────────────────────
+      - name: Extract Terraform Outputs
         run: |
-          CLUSTER_ID="ocid1.cluster.oc1.me-jeddah-1.aaaaaaaa5qi7ztubsu3f65trnztmfm4xtc5bvas7p5nsia33cc22ielzmaeq"
+          CLUSTER_ID=$(terraform output -raw cluster_id)
           echo "CLUSTER_OCID=$CLUSTER_ID" >> $GITHUB_ENV
+          
+          LB_SUBNET_ID=$(terraform output -raw load_balancer_subnet_id)
+          echo "LB_SUBNET_ID=$LB_SUBNET_ID" >> $GITHUB_ENV
 
       # ─── 6. Install OCI CLI ───────────────────────────────────────
       - name: Install OCI CLI
@@ -74,6 +77,15 @@ jobs:
         uses: azure/setup-helm@v3
         with:
           version: 'v3.14.0'
+
+      - name: Install NGINX Ingress Controller
+        run: |
+          helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+          helm repo update
+          helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+            --namespace ingress-nginx --create-namespace \
+            --set controller.service.annotations."service\.beta\.kubernetes\.io/oci-load-balancer-subnet1"=${{ env.LB_SUBNET_ID }} \
+            --set controller.service.annotations."service\.beta\.kubernetes\.io/oci-load-balancer-shape"="100Mbps"
 
       # ─── 8. Generate kubeconfig via OCI CLI ───────────────────────
       - name: Generate kubeconfig
@@ -104,11 +116,10 @@ jobs:
       - name: Create OCIR pull secret
         run: |
           export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
-          OCIR_ACCESS_TOKEN=$(oci container-registry access-token get --query 'data."access-token"' --raw-output)
           kubectl create secret docker-registry ocir-secret \
             --docker-server=jed.ocir.io \
-            --docker-username=BEARER_TOKEN \
-            --docker-password="$OCIR_ACCESS_TOKEN" \
+            --docker-username="${{ secrets.OCI_OCIR_USERNAME }}" \
+            --docker-password="${{ secrets.OCI_AUTH_TOKEN }}" \
             -n ${{ vars.K8S_NAMESPACE }} \
             --dry-run=client -o yaml | kubectl apply -f -
 
