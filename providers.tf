@@ -4,10 +4,16 @@ terraform {
       source  = "oracle/oci"
       version = ">= 5.30.0"
     }
+    github = {
+      source  = "integrations/github"
+      version = "~> 6.0"
+    }
   }
-  # backend "http" {}
+}
 
-
+provider "github" {
+  token = var.github_token
+  owner = var.github_owner
 }
 
 

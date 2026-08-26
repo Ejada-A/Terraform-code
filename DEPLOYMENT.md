@@ -109,7 +109,7 @@ This builds and pushes the following images:
 
 2. **Create the target Namespace**:
    ```bash
-   kubectl apply -f /home/ali_hamad/terraform/kubernetes/00-namespace.yaml
+   kubectl apply -f ./Project/Terraform-code/kubernetes/00-namespace.yaml
    ```
 
 3. **Create the OCIR Pull Secret (`ocir-secret`)**:
@@ -122,39 +122,39 @@ This builds and pushes the following images:
      -n ecommerce-ns
    ```
 
+4. **Create Application Secrets Securely**:
+   Create a local `.env` file containing your real secrets (this file is ignored by Git):
+   ```bash
+   kubectl create secret generic app-secrets \
+     --from-env-file=.env \
+     -n ecommerce-ns
+   ```
+
 ---
 
 ## 🚀 6. Deploy Application Microservices
 
 ### **Option A: Deploy using Helm (Recommended)**
 ```bash
-helm install ecommerce /home/ali_hamad/terraform/helm/ecommerce-app -n ecommerce-ns
-```
-
-*To pass custom values (e.g. real Stripe Secret Key):*
-```bash
-helm upgrade --install ecommerce /home/ali_hamad/terraform/helm/ecommerce-app \
-  -n ecommerce-ns \
-  --set secrets.stripeSecretKey="sk_test_YOUR_REAL_STRIPE_KEY"
+helm install ecommerce ./Project/Terraform-code/helm/ecommerce-app -n ecommerce-ns
 ```
 
 ### **Option B: Deploy using raw Kubernetes Manifests**
 ```bash
-kubectl apply -f /home/ali_hamad/terraform/kubernetes/01-configmap.yaml
-kubectl apply -f /home/ali_hamad/terraform/kubernetes/02-secrets.yaml
-kubectl apply -f /home/ali_hamad/terraform/kubernetes/03-mongodb.yaml
+kubectl apply -f ./Project/Terraform-code/kubernetes/01-configmap.yaml
+kubectl apply -f ./Project/Terraform-code/kubernetes/03-mongodb.yaml
 
 # Wait for MongoDB pod to be Running
 kubectl get pods -n ecommerce-ns -l app=mongodb -w
 
 # Apply microservices, ingress, and HPA
-kubectl apply -f /home/ali_hamad/terraform/kubernetes/04-auth-service.yaml
-kubectl apply -f /home/ali_hamad/terraform/kubernetes/04-products-service.yaml
-kubectl apply -f /home/ali_hamad/terraform/kubernetes/04-orders-service.yaml
-kubectl apply -f /home/ali_hamad/terraform/kubernetes/04-payments-service.yaml
-kubectl apply -f /home/ali_hamad/terraform/kubernetes/04-ecomm-ui.yaml
-kubectl apply -f /home/ali_hamad/terraform/kubernetes/05-ingress.yaml
-kubectl apply -f /home/ali_hamad/terraform/kubernetes/06-hpa.yaml
+kubectl apply -f ./Project/Terraform-code/kubernetes/04-auth-service.yaml
+kubectl apply -f ./Project/Terraform-code/kubernetes/04-products-service.yaml
+kubectl apply -f ./Project/Terraform-code/kubernetes/04-orders-service.yaml
+kubectl apply -f ./Project/Terraform-code/kubernetes/04-payments-service.yaml
+kubectl apply -f ./Project/Terraform-code/kubernetes/04-ecomm-ui.yaml
+kubectl apply -f ./Project/Terraform-code/kubernetes/05-ingress.yaml
+kubectl apply -f ./Project/Terraform-code/kubernetes/06-hpa.yaml
 ```
 
 ---
@@ -202,7 +202,7 @@ To destroy active resources on OCI when finished:
 ```bash
 # 1. Uninstall Helm release or delete Kubernetes manifests
 helm uninstall ecommerce -n ecommerce-ns
-kubectl delete -f /home/ali_hamad/terraform/kubernetes/
+kubectl delete -f ./Project/Terraform-code/kubernetes/
 
 # 2. Destroy OCI Infrastructure via Terraform
 cd /home/ali_hamad/terraform/Project/Terraform-code

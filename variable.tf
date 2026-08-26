@@ -92,3 +92,20 @@ data "oci_core_images" "oke_node_image" {
   sort_by                  = "TIMECREATED"
   sort_order               = "DESC"
 }
+
+# --- GitHub Automation Variables ---
+variable "github_token" {
+  description = "GitHub Personal Access Token with repo access"
+  type        = string
+  sensitive   = true
+}
+
+variable "github_owner" {
+  description = "The GitHub Organization or Username (e.g., Ejada-A)"
+  type        = string
+}
+
+variable "github_repo" {
+  description = "The name of the Terraform-code repository"
+  type        = string
+}

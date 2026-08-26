@@ -2,13 +2,13 @@
 # =============================================================================
 # export_kubeconfig.sh
 # Generates and distributes kubeconfig for OKE cluster contributors.
-# Usage: ./scripts/export_kubeconfig.sh
+# Usage: ./scripts/export_kubeconfig.sh <CLUSTER_OCID> [REGION]
 # =============================================================================
 
 set -euo pipefail
 
-CLUSTER_OCID="ocid1.cluster.oc1.me-jeddah-1.aaaaaaaaja3eietbhld3vsmiukdtckd756pfvfg47uicxq5rbcglmlz3ooaa"
-REGION="me-jeddah-1"
+CLUSTER_OCID="${1:?ERROR: CLUSTER_OCID (arg 1) is required.}"
+REGION="${2:-me-jeddah-1}"
 KUBECONFIG_PATH="${HOME}/.kube/config"
 
 echo "=================================================="
@@ -42,5 +42,5 @@ echo ""
 echo "📌 Share instructions for contributors:"
 echo "   1. Install OCI CLI: https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/cliinstall.htm"
 echo "   2. Configure OCI CLI: oci setup config"
-echo "   3. Run: ./scripts/export_kubeconfig.sh"
+echo "   3. Run: ./scripts/export_kubeconfig.sh <CLUSTER_OCID> [REGION]"
 echo ""
