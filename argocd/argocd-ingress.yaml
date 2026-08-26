@@ -8,8 +8,9 @@ metadata:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 spec:
+  ingressClassName: nginx
   rules:
-  - host: argocd.ejadastore.com
+  - host: shoy.publicvm.com
     http:
       paths:
       - path: /
