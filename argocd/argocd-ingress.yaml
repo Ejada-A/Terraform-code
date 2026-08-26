@@ -10,7 +10,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: shoy.publicvm.com
+  - host: beshoy.publicvm.com
     http:
       paths:
       - path: /
