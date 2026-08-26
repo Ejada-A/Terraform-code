@@ -20,7 +20,7 @@ locals {
   # --- Network Module Input Definitions ---
   vcn_cidr = "10.0.0.0/16"
 
-  # Map for Person 1's dynamic subnet creation
+  # subnet definitions for API endpoint, Load Balancer, Worker Nodes, and Pods
   subnets = {
     api = {
       cidr_block = "10.0.0.0/28"
@@ -40,7 +40,7 @@ locals {
     }
   }
 
-  # Route table definitions matching Person 1's network entity lookups
+  # Route table definitions 
   route_tables = {
     public = [
       {
