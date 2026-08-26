@@ -1,30 +1,26 @@
-name: Build, Push & Deploy to OKE
+name: Deploy Infrastructure and Applications
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
-  build-push-deploy:
-    name: Build, Push & Deploy
+  deploy:
+    name: Provision & Deploy
     runs-on: ubuntu-latest
 
     steps:
-      # ─── 1. Checkout Terraform-code repo (this repo) ─────────────────────────
+      # ─── 1. Checkout Terraform-code repo ─────────────────────────
       - name: Checkout Terraform-code
         uses: actions/checkout@v4
+
+      # ─── 2. Setup Terraform ───────────────────────────────────────
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
         with:
-          path: terraform-code
+          terraform_version: "1.6.0"
+          terraform_wrapper: false
 
-      # ─── 3. Install OCI CLI ─────────────────────────────────────────────────
-      - name: Install OCI CLI
-        run: |
-          curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh | bash -s -- --accept-all-defaults
-          echo "$HOME/bin" >> $GITHUB_PATH
-
-      # ─── 4. Configure OCI CLI ─────────────────────────────────────────────────
+      # ─── 3. Configure OCI CLI for Terraform ───────────────────────
       - name: Configure OCI CLI
         run: |
           mkdir -p ~/.oci
@@ -39,7 +35,37 @@ jobs:
           key_file=~/.oci/oci_api_key.pem
           EOF
 
-      # ─── 7. Install kubectl & Helm ───────────────────────────────────────────
+      # ─── 4. Terraform Init and Apply ──────────────────────────────
+      - name: Terraform Init and Apply
+        env:
+          TF_VAR_tenancy_ocid: ${{ secrets.OCI_TENANCY_OCID }}
+          TF_VAR_user_ocid: ${{ secrets.OCI_USER_OCID }}
+          TF_VAR_fingerprint: ${{ secrets.OCI_FINGERPRINT }}
+          TF_VAR_private_key_path: ~/.oci/oci_api_key.pem
+          TF_VAR_region: ${{ vars.OCI_REGION }}
+          TF_VAR_compartment_ocid: ${{ secrets.OCI_COMPARTMENT_OCID }}
+          TF_VAR_availability_domains: ${{ vars.OCI_AVAILABILITY_DOMAINS }}
+          TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          TF_VAR_github_token: ${{ secrets.GH_PAT }}
+          TF_VAR_github_owner: ${{ vars.GITHUB_OWNER }}
+          TF_VAR_github_repo: ${{ vars.GITHUB_REPO }}
+        run: |
+          terraform init
+          terraform apply -auto-approve
+
+      # ─── 5. Extract Cluster OCID ──────────────────────────────────
+      - name: Extract Cluster OCID
+        run: |
+          CLUSTER_ID=$(terraform output -raw cluster_id)
+          echo "CLUSTER_OCID=$CLUSTER_ID" >> $GITHUB_ENV
+
+      # ─── 6. Install OCI CLI ───────────────────────────────────────
+      - name: Install OCI CLI
+        run: |
+          curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh | bash -s -- --accept-all-defaults
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      # ─── 7. Install kubectl & Helm ────────────────────────────────
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
         with:
@@ -50,18 +76,26 @@ jobs:
         with:
           version: 'v3.14.0'
 
-      # ─── 8. Generate kubeconfig via OCI CLI ──────────────────────────────────
+      # ─── 8. Generate kubeconfig via OCI CLI ───────────────────────
       - name: Generate kubeconfig
         run: |
           mkdir -p ~/.kube
           oci ce cluster create-kubeconfig \
-            --cluster-id ${{ secrets.CLUSTER_OCID }} \
+            --cluster-id ${{ env.CLUSTER_OCID }} \
             --file ~/.kube/config \
             --region ${{ vars.OCI_REGION }} \
             --token-version 2.0.0 \
             --kube-endpoint PUBLIC_ENDPOINT
+          chmod 600 ~/.kube/config
 
-      # ─── 9. Create / Update Kubernetes Secrets ───────────────────────────────
+      # ─── 9. Export Kubeconfig as Artifact ─────────────────────────
+      - name: Upload Kubeconfig
+        uses: actions/upload-artifact@v4
+        with:
+          name: kubeconfig
+          path: ~/.kube/config
+
+      # ─── 10. Create Kubernetes Secrets ────────────────────────────
       - name: Create namespace if not exists
         run: |
           kubectl create namespace ${{ vars.K8S_NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
@@ -86,18 +120,18 @@ jobs:
             -n ${{ vars.K8S_NAMESPACE }} \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      # ─── 10. Install ArgoCD ───────────────────────────────────────────────────
+      # ─── 11. Install ArgoCD ───────────────────────────────────────
       - name: Install ArgoCD
         run: |
           kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
           kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
-      # ─── 11. Wait for ArgoCD server ───────────────────────────────────────────
+      # ─── 12. Wait for ArgoCD server ───────────────────────────────
       - name: Wait for ArgoCD server
         run: |
           kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
 
-      # ─── 12. Apply ArgoCD Config ──────────────────────────────────────────────
+      # ─── 13. Apply ArgoCD Config (Deploys App) ────────────────────
       - name: Apply ArgoCD Config
         run: |
-          kubectl apply -f terraform-code/argocd/ecommerce-app.yaml
+          kubectl apply -f argocd/ecommerce-app.yaml
