@@ -128,7 +128,7 @@ jobs:
         run: |
           export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
           kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
-          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side=true
+          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side=true --force-conflicts
 
       # ─── 12. Wait for ArgoCD server ───────────────────────────────
       - name: Wait for ArgoCD server
