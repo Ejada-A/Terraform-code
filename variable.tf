@@ -29,11 +29,6 @@ variable "region" {
   type        = string
 }
 
-variable "availability_domains" {
-  description = "List of availability domains in the region"
-  type        = list(string)
-}
-
 variable "project_name" {
   description = "The project name used as a prefix for resources"
   type        = string

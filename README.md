@@ -111,7 +111,6 @@ while still demonstrating production-grade elasticity:
 | `fingerprint` | `string` | The fingerprint of the OCI API key | required |
 | `private_key_path` | `string` | The path to the OCI API private key file | required |
 | `region` | `string` | The OCI region (e.g. `us-ashburn-1`) | required |
-| `availability_domains` | `list(string)` | List of availability domains in the region | required |
 | `project_name` | `string` | Project name used as a prefix for resources | `"groupa"` |
 | `environment` | `string` | Deployment environment (e.g. `dev`, `prod`) | `"dev"` |
 | `ssh_public_key` | `string` | SSH public key for worker node access (troubleshooting) | required |
