@@ -78,7 +78,7 @@ paymentsService:
   replicaCount: 2
   image:
     repository: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp/payments-service
-    tag: 7
+    tag: 8
   port: 5004
   healthPath: /health
   resources:
