@@ -18,42 +18,6 @@ jobs:
         with:
           path: terraform-code
 
-      # ─── 2. Checkout each microservice repo ──────────────────────────────────
-      - name: Checkout auth-service
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ vars.AUTH_SERVICE_REPO }}
-          token: ${{ secrets.GH_PAT }}
-          path: services/auth-service
-
-      - name: Checkout products-service
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ vars.PRODUCTS_SERVICE_REPO }}
-          token: ${{ secrets.GH_PAT }}
-          path: services/products-service
-
-      - name: Checkout orders-service
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ vars.ORDERS_SERVICE_REPO }}
-          token: ${{ secrets.GH_PAT }}
-          path: services/orders-service
-
-      - name: Checkout payments-service
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ vars.PAYMENTS_SERVICE_REPO }}
-          token: ${{ secrets.GH_PAT }}
-          path: services/payments-service
-
-      - name: Checkout ecomm-ui
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ vars.ECOMM_UI_REPO }}
-          token: ${{ secrets.GH_PAT }}
-          path: services/ecomm-ui
-
       # ─── 3. Install OCI CLI ─────────────────────────────────────────────────
       - name: Install OCI CLI
         run: |
@@ -74,24 +38,6 @@ jobs:
           region=${{ vars.OCI_REGION }}
           key_file=~/.oci/oci_api_key.pem
           EOF
-
-      # ─── 5. Login to OCIR ────────────────────────────────────────────────────
-      - name: Login to OCIR
-        run: |
-          echo "${{ secrets.OCIR_AUTH_TOKEN }}" | docker login ${{ vars.OCIR_REGISTRY }} \
-            -u "${{ vars.TENANCY_NAMESPACE }}/${{ secrets.OCI_IDENTITY_DOMAIN }}/${{ secrets.OCI_USER_EMAIL }}" \
-            --password-stdin
-
-      # ─── 6. Build & Push All Microservices ───────────────────────────────────
-      - name: Build & push microservices
-        run: |
-          chmod +x ./terraform-code/scripts/build_and_push.sh
-          ./terraform-code/scripts/build_and_push.sh \
-            ${{ vars.OCIR_REGISTRY }} \
-            ${{ vars.TENANCY_NAMESPACE }} \
-            ${{ github.sha }} \
-            ${{ vars.REPO_PREFIX }} \
-            ${{ github.workspace }}/services
 
       # ─── 7. Install kubectl & Helm ───────────────────────────────────────────
       - name: Install kubectl
