@@ -146,6 +146,11 @@ jobs:
                     class: nginx
           EOF
 
+      - name: Install Metrics Server
+        run: |
+          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
+          kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
       # ─── 10. Create Kubernetes Secrets ────────────────────────────
       - name: Create namespace if not exists
         run: |
