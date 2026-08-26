@@ -98,6 +98,7 @@ jobs:
       # ─── 10. Create Kubernetes Secrets ────────────────────────────
       - name: Create namespace if not exists
         run: |
+          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
           kubectl create namespace ${{ vars.K8S_NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Create OCIR pull secret
@@ -113,6 +114,7 @@ jobs:
 
       - name: Create app-secrets in Kubernetes
         run: |
+          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
           kubectl create secret generic app-secrets \
             --from-literal=JWT_SECRET="${{ secrets.JWT_SECRET }}" \
             --from-literal=STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
@@ -124,15 +126,18 @@ jobs:
       # ─── 11. Install ArgoCD ───────────────────────────────────────
       - name: Install ArgoCD
         run: |
+          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
           kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
-          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side=true
 
       # ─── 12. Wait for ArgoCD server ───────────────────────────────
       - name: Wait for ArgoCD server
         run: |
+          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
           kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
 
       # ─── 13. Apply ArgoCD Config (Deploys App) ────────────────────
       - name: Apply ArgoCD Config
         run: |
+          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
           kubectl apply -f argocd/ecommerce-app.yaml
