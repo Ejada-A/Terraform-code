@@ -50,12 +50,12 @@ jobs:
           TF_VAR_github_repo: ${{ vars.TERRAFORM_REPO }}
         run: |
           terraform init
-          terraform apply -auto-approve
+          # terraform apply -auto-approve
 
       # ─── 5. Extract Cluster OCID ──────────────────────────────────
       - name: Extract Cluster OCID
         run: |
-          CLUSTER_ID=$(terraform output -raw cluster_id)
+          CLUSTER_ID="ocid1.cluster.oc1.me-jeddah-1.aaaaaaaa5qi7ztubsu3f65trnztmfm4xtc5bvas7p5nsia33cc22ielzmaeq"
           echo "CLUSTER_OCID=$CLUSTER_ID" >> $GITHUB_ENV
 
       # ─── 6. Install OCI CLI ───────────────────────────────────────
@@ -79,6 +79,7 @@ jobs:
       - name: Generate kubeconfig
         run: |
           mkdir -p ~/.kube
+          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
           oci ce cluster create-kubeconfig \
             --cluster-id ${{ env.CLUSTER_OCID }} \
             --file ~/.kube/config \
@@ -101,11 +102,12 @@ jobs:
 
       - name: Create OCIR pull secret
         run: |
+          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
+          OCIR_ACCESS_TOKEN=$(oci container-registry access-token get --query 'data."access-token"' --raw-output)
           kubectl create secret docker-registry ocir-secret \
-            --docker-server=${{ vars.OCIR_REGISTRY }} \
-            --docker-username="${{ vars.TENANCY_NAMESPACE }}/${{ secrets.OCI_IDENTITY_DOMAIN }}/${{ secrets.OCI_USER_EMAIL }}" \
-            --docker-password="${{ secrets.OCI_AUTH_TOKEN }}" \
-            --docker-email="${{ secrets.OCI_USER_EMAIL }}" \
+            --docker-server=jed.ocir.io \
+            --docker-username=BEARER_TOKEN \
+            --docker-password="$OCIR_ACCESS_TOKEN" \
             -n ${{ vars.K8S_NAMESPACE }} \
             --dry-run=client -o yaml | kubectl apply -f -
 
