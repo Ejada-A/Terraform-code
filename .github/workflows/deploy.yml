@@ -136,7 +136,7 @@ jobs:
             name: letsencrypt-prod
           spec:
             acme:
-              email: \${{ secrets.ADMIN_EMAIL }}
+              email: ${{ secrets.ADMIN_EMAIL }}
               server: https://acme-v02.api.letsencrypt.org/directory
               privateKeySecretRef:
                 name: letsencrypt-prod-account-key
