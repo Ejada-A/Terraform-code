@@ -33,7 +33,7 @@ authService:
   replicaCount: 2
   image:
     repository: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp/auth-service
-    tag: 16
+    tag: 17
   port: 5001
   healthPath: /health
   resources:
