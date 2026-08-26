@@ -109,7 +109,7 @@ ecommUi:
 ingress:
   enabled: true
   className: nginx
-  host: ecommerce.ejadastore.com
+  host: bosha.publicvm.com
 autoscaling:
   enabled: true
   minReplicas: 2
