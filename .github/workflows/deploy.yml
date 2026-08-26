@@ -58,6 +58,9 @@ jobs:
 
       # ─── 5. Extract Terraform Outputs ─────────────────────────────
       - name: Extract Terraform Outputs
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.OCI_S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.OCI_S3_SECRET_KEY }}
         run: |
           CLUSTER_ID=$(terraform output -raw cluster_id)
           echo "CLUSTER_OCID=$CLUSTER_ID" >> $GITHUB_ENV
