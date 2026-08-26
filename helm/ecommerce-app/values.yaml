@@ -110,6 +110,8 @@ ingress:
   enabled: true
   className: nginx
   host: shoy.publicvm.com
+  tls:
+    secretName: shoy-tls-secret
 autoscaling:
   enabled: true
   minReplicas: 2
