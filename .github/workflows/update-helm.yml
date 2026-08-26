@@ -1,0 +1,42 @@
+name: Update Helm Values
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+      image_tag:
+        required: true
+        type: string
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Helm Repo
+        uses: actions/checkout@v4
+        with:
+          repository: Ejada-A/Terraform-code
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Update values.yaml
+        run: |
+          SERVICE_NAME="${{ inputs.service }}"
+          IMAGE_TAG="${{ inputs.image_tag }}"
+          
+          # Convert dash-case to camelCase (e.g. products-service -> productsService)
+          SERVICE_KEY=$(echo "$SERVICE_NAME" | awk -F- '{print $1 toupper(substr($2,1,1)) substr($2,2)}')
+          
+          echo "Updating $SERVICE_KEY with tag $IMAGE_TAG"
+          
+          # Update the tag in values.yaml using env vars for safety
+          SERVICE_KEY=$SERVICE_KEY IMAGE_TAG=$IMAGE_TAG yq eval '.[env(SERVICE_KEY)].image.tag = env(IMAGE_TAG)' -i helm/ecommerce-app/values.yaml
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add helm/ecommerce-app/values.yaml
+          git commit -m "Update $SERVICE_NAME image tag to $IMAGE_TAG"
+          git push
