@@ -48,7 +48,7 @@ productsService:
   replicaCount: 2
   image:
     repository: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp/products-service
-    tag: 9
+    tag: 11
   port: 5002
   healthPath: /health
   resources:
