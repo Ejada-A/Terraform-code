@@ -70,7 +70,7 @@ resource "oci_artifacts_container_repository" "microservices" {
 # resource "oci_identity_policy" "oke_nodes_policy" {
 #   compartment_id = var.compartment_ocid
 #   name           = "${local.prefix}-oke-nodes-policy"
-#   description    = "Allow OKE nodes to pull images and read secrets[cite: 2]"
+#   description    = "Allow OKE nodes to pull images and read secrets"
 
 #   statements = [
 #     "Allow dynamic-group ${oci_identity_dynamic_group.oke_nodes.name} to read repos in compartment id ${var.compartment_ocid}",

@@ -1,5 +1,5 @@
 output "cluster_id" {
-  description = "The OCID of the OKE cluster. Person 3 uses this to output the kubeconfig command."
+  description = "The OCID of the OKE cluster"
   value       = oci_containerengine_cluster.oke_cluster.id
 }
 
