@@ -48,9 +48,13 @@ jobs:
           TF_VAR_github_token: ${{ secrets.GH_PAT }}
           TF_VAR_github_owner: ${{ vars.GH_OWNER }}
           TF_VAR_github_repo: ${{ vars.TERRAFORM_REPO }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.OCI_S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.OCI_S3_SECRET_KEY }}
         run: |
-          terraform init
-          # terraform apply -auto-approve
+          terraform init \
+            -backend-config="region=${{ vars.OCI_REGION }}" \
+            -backend-config="endpoint=https://${{ secrets.OCI_NAMESPACE }}.compat.objectstorage.${{ vars.OCI_REGION }}.oraclecloud.com"
+          terraform apply -auto-approve
 
       # ─── 5. Extract Terraform Outputs ─────────────────────────────
       - name: Extract Terraform Outputs
