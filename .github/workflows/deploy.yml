@@ -1,166 +1,157 @@
-# name: Build, Push & Deploy to OKE
+name: Build, Push & Deploy to OKE
 
-# on:
-#   push:
-#     branches:
-#       - main
-#   workflow_dispatch:
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-# jobs:
-#   build-push-deploy:
-#     name: Build, Push & Deploy
-#     runs-on: ubuntu-latest
+jobs:
+  build-push-deploy:
+    name: Build, Push & Deploy
+    runs-on: ubuntu-latest
 
-#     steps:
-#       # ─── 1. Checkout Terraform-code repo (this repo) ─────────────────────────
-#       - name: Checkout Terraform-code
-#         uses: actions/checkout@v4
-#         with:
-#           path: terraform-code
+    steps:
+      # ─── 1. Checkout Terraform-code repo (this repo) ─────────────────────────
+      - name: Checkout Terraform-code
+        uses: actions/checkout@v4
+        with:
+          path: terraform-code
 
-#       # ─── 2. Checkout each microservice repo ──────────────────────────────────
-#       - name: Checkout auth-service
-#         uses: actions/checkout@v4
-#         with:
-#           repository: ${{ vars.AUTH_SERVICE_REPO }}
-#           token: ${{ secrets.GH_PAT }}
-#           path: services/auth-service
+      # ─── 2. Checkout each microservice repo ──────────────────────────────────
+      - name: Checkout auth-service
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.AUTH_SERVICE_REPO }}
+          token: ${{ secrets.GH_PAT }}
+          path: services/auth-service
 
-#       - name: Checkout products-service
-#         uses: actions/checkout@v4
-#         with:
-#           repository: ${{ vars.PRODUCTS_SERVICE_REPO }}
-#           token: ${{ secrets.GH_PAT }}
-#           path: services/products-service
+      - name: Checkout products-service
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.PRODUCTS_SERVICE_REPO }}
+          token: ${{ secrets.GH_PAT }}
+          path: services/products-service
 
-#       - name: Checkout orders-service
-#         uses: actions/checkout@v4
-#         with:
-#           repository: ${{ vars.ORDERS_SERVICE_REPO }}
-#           token: ${{ secrets.GH_PAT }}
-#           path: services/orders-service
+      - name: Checkout orders-service
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.ORDERS_SERVICE_REPO }}
+          token: ${{ secrets.GH_PAT }}
+          path: services/orders-service
 
-#       - name: Checkout payments-service
-#         uses: actions/checkout@v4
-#         with:
-#           repository: ${{ vars.PAYMENTS_SERVICE_REPO }}
-#           token: ${{ secrets.GH_PAT }}
-#           path: services/payments-service
+      - name: Checkout payments-service
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.PAYMENTS_SERVICE_REPO }}
+          token: ${{ secrets.GH_PAT }}
+          path: services/payments-service
 
-#       - name: Checkout ecomm-ui
-#         uses: actions/checkout@v4
-#         with:
-#           repository: ${{ vars.ECOMM_UI_REPO }}
-#           token: ${{ secrets.GH_PAT }}
-#           path: services/ecomm-ui
+      - name: Checkout ecomm-ui
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.ECOMM_UI_REPO }}
+          token: ${{ secrets.GH_PAT }}
+          path: services/ecomm-ui
 
-#       # ─── 3. Install OCI CLI ─────────────────────────────────────────────────
-#       - name: Install OCI CLI
-#         run: |
-#           curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh | bash -s -- --accept-all-defaults
-#           echo "$HOME/bin" >> $GITHUB_PATH
+      # ─── 3. Install OCI CLI ─────────────────────────────────────────────────
+      - name: Install OCI CLI
+        run: |
+          curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh | bash -s -- --accept-all-defaults
+          echo "$HOME/bin" >> $GITHUB_PATH
 
-#       # ─── 4. Configure OCI CLI ─────────────────────────────────────────────────
-#       - name: Configure OCI CLI
-#         run: |
-#           mkdir -p ~/.oci
-#           echo "${{ secrets.OCI_KEY_CONTENT }}" > ~/.oci/oci_api_key.pem
-#           chmod 600 ~/.oci/oci_api_key.pem
-#           cat > ~/.oci/config <<EOF
-#           [DEFAULT]
-#           user=${{ secrets.OCI_USER_OCID }}
-#           fingerprint=${{ secrets.OCI_FINGERPRINT }}
-#           tenancy=${{ secrets.OCI_TENANCY_OCID }}
-#           region=${{ vars.OCI_REGION }}
-#           key_file=~/.oci/oci_api_key.pem
-#           EOF
+      # ─── 4. Configure OCI CLI ─────────────────────────────────────────────────
+      - name: Configure OCI CLI
+        run: |
+          mkdir -p ~/.oci
+          echo "${{ secrets.OCI_KEY_CONTENT }}" > ~/.oci/oci_api_key.pem
+          chmod 600 ~/.oci/oci_api_key.pem
+          cat > ~/.oci/config <<EOF
+          [DEFAULT]
+          user=${{ secrets.OCI_USER_OCID }}
+          fingerprint=${{ secrets.OCI_FINGERPRINT }}
+          tenancy=${{ secrets.OCI_TENANCY_OCID }}
+          region=${{ vars.OCI_REGION }}
+          key_file=~/.oci/oci_api_key.pem
+          EOF
 
-#       # ─── 5. Login to OCIR ────────────────────────────────────────────────────
-#       - name: Login to OCIR
-#         run: |
-#           echo "${{ secrets.OCIR_AUTH_TOKEN }}" | docker login ${{ vars.OCIR_REGISTRY }} \
-#             -u "${{ vars.TENANCY_NAMESPACE }}/${{ secrets.OCI_IDENTITY_DOMAIN }}/${{ secrets.OCI_USER_EMAIL }}" \
-#             --password-stdin
+      # ─── 5. Login to OCIR ────────────────────────────────────────────────────
+      - name: Login to OCIR
+        run: |
+          echo "${{ secrets.OCIR_AUTH_TOKEN }}" | docker login ${{ vars.OCIR_REGISTRY }} \
+            -u "${{ vars.TENANCY_NAMESPACE }}/${{ secrets.OCI_IDENTITY_DOMAIN }}/${{ secrets.OCI_USER_EMAIL }}" \
+            --password-stdin
 
-#       # ─── 6. Build & Push All Microservices ───────────────────────────────────
-#       - name: Build & push microservices
-#         run: |
-#           chmod +x ./terraform-code/scripts/build_and_push.sh
-#           ./terraform-code/scripts/build_and_push.sh \
-#             ${{ vars.OCIR_REGISTRY }} \
-#             ${{ vars.TENANCY_NAMESPACE }} \
-#             ${{ github.sha }} \
-#             ${{ vars.REPO_PREFIX }} \
-#             ${{ github.workspace }}/services
+      # ─── 6. Build & Push All Microservices ───────────────────────────────────
+      - name: Build & push microservices
+        run: |
+          chmod +x ./terraform-code/scripts/build_and_push.sh
+          ./terraform-code/scripts/build_and_push.sh \
+            ${{ vars.OCIR_REGISTRY }} \
+            ${{ vars.TENANCY_NAMESPACE }} \
+            ${{ github.sha }} \
+            ${{ vars.REPO_PREFIX }} \
+            ${{ github.workspace }}/services
 
-#       # ─── 7. Install kubectl & Helm ───────────────────────────────────────────
-#       - name: Install kubectl
-#         uses: azure/setup-kubectl@v3
-#         with:
-#           version: 'v1.28.0'
+      # ─── 7. Install kubectl & Helm ───────────────────────────────────────────
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
 
-#       - name: Install Helm
-#         uses: azure/setup-helm@v3
-#         with:
-#           version: 'v3.14.0'
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'v3.14.0'
 
-#       # ─── 8. Generate kubeconfig via OCI CLI ──────────────────────────────────
-#       - name: Generate kubeconfig
-#         run: |
-#           mkdir -p ~/.kube
-#           oci ce cluster create-kubeconfig \
-#             --cluster-id ${{ secrets.CLUSTER_OCID }} \
-#             --file ~/.kube/config \
-#             --region ${{ vars.OCI_REGION }} \
-#             --token-version 2.0.0 \
-#             --kube-endpoint PUBLIC_ENDPOINT
+      # ─── 8. Generate kubeconfig via OCI CLI ──────────────────────────────────
+      - name: Generate kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          oci ce cluster create-kubeconfig \
+            --cluster-id ${{ secrets.CLUSTER_OCID }} \
+            --file ~/.kube/config \
+            --region ${{ vars.OCI_REGION }} \
+            --token-version 2.0.0 \
+            --kube-endpoint PUBLIC_ENDPOINT
 
-#       # ─── 9. Create / Update Kubernetes Secrets ───────────────────────────────
-#       - name: Create namespace if not exists
-#         run: |
-#           kubectl create namespace ${{ vars.K8S_NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+      # ─── 9. Create / Update Kubernetes Secrets ───────────────────────────────
+      - name: Create namespace if not exists
+        run: |
+          kubectl create namespace ${{ vars.K8S_NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
 
-#       - name: Create OCIR pull secret
-#         run: |
-#           kubectl create secret docker-registry ocir-secret \
-#             --docker-server=${{ vars.OCIR_REGISTRY }} \
-#             --docker-username="${{ vars.TENANCY_NAMESPACE }}/${{ secrets.OCI_IDENTITY_DOMAIN }}/${{ secrets.OCI_USER_EMAIL }}" \
-#             --docker-password="${{ secrets.OCIR_AUTH_TOKEN }}" \
-#             --docker-email="${{ secrets.OCI_USER_EMAIL }}" \
-#             -n ${{ vars.K8S_NAMESPACE }} \
-#             --dry-run=client -o yaml | kubectl apply -f -
+      - name: Create OCIR pull secret
+        run: |
+          kubectl create secret docker-registry ocir-secret \
+            --docker-server=${{ vars.OCIR_REGISTRY }} \
+            --docker-username="${{ vars.TENANCY_NAMESPACE }}/${{ secrets.OCI_IDENTITY_DOMAIN }}/${{ secrets.OCI_USER_EMAIL }}" \
+            --docker-password="${{ secrets.OCIR_AUTH_TOKEN }}" \
+            --docker-email="${{ secrets.OCI_USER_EMAIL }}" \
+            -n ${{ vars.K8S_NAMESPACE }} \
+            --dry-run=client -o yaml | kubectl apply -f -
 
-#       - name: Create app-secrets in Kubernetes
-#         run: |
-#           kubectl create secret generic app-secrets \
-#             --from-literal=JWT_SECRET="${{ secrets.JWT_SECRET }}" \
-#             --from-literal=STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
-#             --from-literal=ADMIN_EMAIL="${{ secrets.ADMIN_EMAIL }}" \
-#             --from-literal=ADMIN_PASSWORD="${{ secrets.ADMIN_PASSWORD }}" \
-#             -n ${{ vars.K8S_NAMESPACE }} \
-#             --dry-run=client -o yaml | kubectl apply -f -
+      - name: Create app-secrets in Kubernetes
+        run: |
+          kubectl create secret generic app-secrets \
+            --from-literal=JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+            --from-literal=STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
+            --from-literal=ADMIN_EMAIL="${{ secrets.ADMIN_EMAIL }}" \
+            --from-literal=ADMIN_PASSWORD="${{ secrets.ADMIN_PASSWORD }}" \
+            -n ${{ vars.K8S_NAMESPACE }} \
+            --dry-run=client -o yaml | kubectl apply -f -
 
-#       # ─── 10. Deploy with Helm ─────────────────────────────────────────────────
-#       - name: Helm upgrade --install
-#         run: |
-#           helm upgrade --install ecommerce ./terraform-code/helm/ecommerce-app \
-#             -n ${{ vars.K8S_NAMESPACE }} \
-#             --set authService.image.tag=${{ github.sha }} \
-#             --set productsService.image.tag=${{ github.sha }} \
-#             --set ordersService.image.tag=${{ github.sha }} \
-#             --set paymentsService.image.tag=${{ github.sha }} \
-#             --set ecommUi.image.tag=${{ github.sha }} \
-#             --wait \
-#             --timeout 5m
+      # ─── 10. Install ArgoCD ───────────────────────────────────────────────────
+      - name: Install ArgoCD
+        run: |
+          kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
-#       # ─── 11. Verify Deployment ────────────────────────────────────────────────
-#       - name: Verify rollout
-#         run: |
-#           kubectl rollout status deployment/auth-service -n ${{ vars.K8S_NAMESPACE }}
-#           kubectl rollout status deployment/products-service -n ${{ vars.K8S_NAMESPACE }}
-#           kubectl rollout status deployment/orders-service -n ${{ vars.K8S_NAMESPACE }}
-#           kubectl rollout status deployment/payments-service -n ${{ vars.K8S_NAMESPACE }}
-#           kubectl rollout status deployment/ecomm-ui -n ${{ vars.K8S_NAMESPACE }}
-#           echo "✅ All deployments are healthy"
-#           kubectl get pods -n ${{ vars.K8S_NAMESPACE }}
-#           kubectl get svc ecomm-ui-lb -n ${{ vars.K8S_NAMESPACE }}
+      # ─── 11. Wait for ArgoCD server ───────────────────────────────────────────
+      - name: Wait for ArgoCD server
+        run: |
+          kubectl wait --for=condition=available deployment/argocd-server -n argocd --timeout=300s
+
+      # ─── 12. Apply ArgoCD Config ──────────────────────────────────────────────
+      - name: Apply ArgoCD Config
+        run: |
+          kubectl apply -f terraform-code/argocd/ecommerce-app.yaml
