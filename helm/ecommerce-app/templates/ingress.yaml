@@ -32,32 +32,4 @@ spec:
             name: {{ .Values.ecommUi.name }}
             port:
               number: 80
-      - path: /api/auth(/|$)(.*)
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: {{ .Values.authService.name }}
-            port:
-              number: {{ .Values.authService.port }}
-      - path: /api/products(/|$)(.*)
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: {{ .Values.productsService.name }}
-            port:
-              number: {{ .Values.productsService.port }}
-      - path: /api/orders(/|$)(.*)
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: {{ .Values.ordersService.name }}
-            port:
-              number: {{ .Values.ordersService.port }}
-      - path: /api/payments(/|$)(.*)
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: {{ .Values.paymentsService.name }}
-            port:
-              number: {{ .Values.paymentsService.port }}
 {{- end }}
