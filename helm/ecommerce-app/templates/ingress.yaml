@@ -8,7 +8,8 @@ metadata:
     {{- include "ecommerce-app.labels" . | nindent 4 }}
   annotations:
     kubernetes.io/ingress.class: {{ .Values.ingress.className | quote }}
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
     {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
@@ -24,36 +25,36 @@ spec:
   - host: {{ .Values.ingress.host | quote }}
     http:
       paths:
-      - path: /
-        pathType: Prefix
+      - path: /()(.*)
+        pathType: ImplementationSpecific
         backend:
           service:
             name: {{ .Values.ecommUi.name }}
             port:
               number: 80
-      - path: /api/auth
-        pathType: Prefix
+      - path: /api/auth(/|$)(.*)
+        pathType: ImplementationSpecific
         backend:
           service:
             name: {{ .Values.authService.name }}
             port:
               number: {{ .Values.authService.port }}
-      - path: /api/products
-        pathType: Prefix
+      - path: /api/products(/|$)(.*)
+        pathType: ImplementationSpecific
         backend:
           service:
             name: {{ .Values.productsService.name }}
             port:
               number: {{ .Values.productsService.port }}
-      - path: /api/orders
-        pathType: Prefix
+      - path: /api/orders(/|$)(.*)
+        pathType: ImplementationSpecific
         backend:
           service:
             name: {{ .Values.ordersService.name }}
             port:
               number: {{ .Values.ordersService.port }}
-      - path: /api/payments
-        pathType: Prefix
+      - path: /api/payments(/|$)(.*)
+        pathType: ImplementationSpecific
         backend:
           service:
             name: {{ .Values.paymentsService.name }}
