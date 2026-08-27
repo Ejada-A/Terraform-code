@@ -63,7 +63,7 @@ ordersService:
   replicaCount: 2
   image:
     repository: jed.ocir.io/axkjllkftxfz/shared-group-a-cmp/orders-service
-    tag: 9
+    tag: 10
   port: 5003
   healthPath: /health
   resources:
