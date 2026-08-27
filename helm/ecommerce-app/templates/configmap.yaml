@@ -6,6 +6,7 @@ metadata:
   labels:
     {{- include "ecommerce-app.labels" . | nindent 4 }}
 data:
+  CORS_ORIGINS: "http://shoy.publicvm.com,https://shoy.publicvm.com,http://localhost:3000"
   MONGODB_URI: "mongodb://mongodb.{{ .Values.global.namespace }}.svc.cluster.local:27017/ecommerce"
   AUTH_SERVICE_URL: "http://auth-service.{{ .Values.global.namespace }}.svc.cluster.local:5001"
   PRODUCT_SERVICE_URL: "http://products-service.{{ .Values.global.namespace }}.svc.cluster.local:5002"

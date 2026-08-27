@@ -30,22 +30,25 @@ spec:
         env:
         - name: PORT
           value: "{{ .Values.ordersService.port }}"
+        - name: CORS_ORIGINS
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: CORS_ORIGINS
         - name: MONGODB_URI
           valueFrom:
             configMapKeyRef:
               name: app-config
               key: MONGODB_URI
         livenessProbe:
-          httpGet:
-            path: {{ .Values.ordersService.healthPath }}
+          tcpSocket:
             port: {{ .Values.ordersService.port }}
           initialDelaySeconds: 15
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
         readinessProbe:
-          httpGet:
-            path: {{ .Values.ordersService.healthPath }}
+          tcpSocket:
             port: {{ .Values.ordersService.port }}
           initialDelaySeconds: 5
           periodSeconds: 5
