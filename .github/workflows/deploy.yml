@@ -121,7 +121,7 @@ jobs:
             --set controller.service.annotations.\"oci\.oraclecloud\.com/oci-load-balancer-shape-flex-min\"=\"10\" \
             --set controller.service.annotations.\"oci\.oraclecloud\.com/oci-load-balancer-shape-flex-max\"=\"100\" \
             --set controller.service.annotations.\"oci\.oraclecloud\.com/oci-network-security-groups\"=${{ env.LB_NSG_ID }} \
-            --set controller.service.annotations.\"oci\.oraclecloud\.com/security-rule-management-mode\"=\"NSG\""
+            --set controller.service.annotations.\"oci\.oraclecloud\.com/security-rule-management-mode\"=\"None\""
             
           # Only attach the Reserved IP if it is defined in GitHub Variables
           if [ -n "${{ vars.RESERVED_PUBLIC_IP }}" ]; then
