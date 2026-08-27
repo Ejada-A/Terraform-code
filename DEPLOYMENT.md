@@ -164,3 +164,19 @@ If you get a DNS timeout while running Terraform, your internet connection dropp
 ### Terraform is stuck "Still destroying..."
 If Terraform is stuck for more than 40 minutes deleting a Subnet or VCN, a Kubernetes Load Balancer or Block Volume was left behind.
 **Fix:** Go to the OCI Console in your browser. Manually terminate any remaining Load Balancers (Networking -> Load Balancers) and Block Volumes (Storage -> Block Volumes). Terraform will immediately unblock and finish the destruction.
+
+### "No valid credential sources found" in GitHub Actions
+If a specific step (like `Extract Terraform Outputs`) in your GitHub Actions pipeline fails with this error, it means the step doesn't have access to the AWS environment variables.
+**Fix:** Environment variables do not automatically persist across steps in GitHub Actions. You must explicitly define `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` in the `env:` block of *every* step that requires Terraform to access the remote state.
+
+### "Unsupported argument: skip_requesting_account_id"
+If Terraform crashes during `init` complaining about unsupported `s3` backend arguments, you are using an outdated version of Terraform (v1.6 or older).
+**Fix:** Ensure your GitHub Actions `setup-terraform` step is set to at least `terraform_version: "1.9.0"`, which fully supports OCI compatibility flags.
+
+### "Invalid ownership metadata" in Helm
+If Helm fails to deploy with this error regarding a Kubernetes Secret, it means you have a `secret.yaml` template in your Helm chart for a secret that already exists or was generated dynamically (e.g. by CI/CD or `.env`).
+**Fix:** Never include a Helm template for a secret if you plan to inject that secret dynamically via GitHub Actions or terminal commands. Delete the `secret.yaml` file from your Helm templates folder.
+
+### "Conflicting Parameters" during Terraform Init
+If `terraform init` fails in your pipeline complaining about conflicting `endpoint` and `endpoints.s3` arguments.
+**Fix:** If you define `endpoints = { s3 = "url" }` hardcoded inside `providers.tf`, do not also pass `-backend-config="endpoint=url"` as a command-line argument. Remove the CLI argument to prevent the conflict.
