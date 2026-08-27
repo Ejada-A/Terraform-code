@@ -117,8 +117,11 @@ jobs:
           HELM_CMD="helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
             --namespace ingress-nginx --create-namespace \
             --set controller.service.annotations.\"service\.beta\.kubernetes\.io/oci-load-balancer-subnet1\"=${{ env.LB_SUBNET_ID }} \
-            --set controller.service.annotations.\"service\.beta\.kubernetes\.io/oci-load-balancer-shape\"=\"100Mbps\" \
-            --set controller.service.annotations.\"service\.beta\.kubernetes\.io/oci-load-balancer-nsg-ids\"=${{ env.LB_NSG_ID }}"
+            --set controller.service.annotations.\"oci\.oraclecloud\.com/oci-load-balancer-shape\"=\"flexible\" \
+            --set controller.service.annotations.\"oci\.oraclecloud\.com/oci-load-balancer-shape-flex-min\"=\"10\" \
+            --set controller.service.annotations.\"oci\.oraclecloud\.com/oci-load-balancer-shape-flex-max\"=\"100\" \
+            --set controller.service.annotations.\"oci\.oraclecloud\.com/oci-network-security-groups\"=${{ env.LB_NSG_ID }} \
+            --set controller.service.annotations.\"oci\.oraclecloud\.com/security-rule-management-mode\"=\"NSG\""
             
           # Only attach the Reserved IP if it is defined in GitHub Variables
           if [ -n "${{ vars.RESERVED_PUBLIC_IP }}" ]; then
