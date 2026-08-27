@@ -66,6 +66,8 @@ jobs:
           echo "CLUSTER_OCID=$CLUSTER_ID" >> $GITHUB_ENV
           
           LB_SUBNET_ID=$(terraform output -raw load_balancer_subnet_id)
+          LB_NSG_ID=$(terraform output -raw load_balancer_nsg_id)
+          echo "LB_NSG_ID=$LB_NSG_ID" >> $GITHUB_ENV
           echo "LB_SUBNET_ID=$LB_SUBNET_ID" >> $GITHUB_ENV
 
       # ─── 6. Install OCI CLI ───────────────────────────────────────
@@ -115,7 +117,8 @@ jobs:
           HELM_CMD="helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
             --namespace ingress-nginx --create-namespace \
             --set controller.service.annotations.\"service\.beta\.kubernetes\.io/oci-load-balancer-subnet1\"=${{ env.LB_SUBNET_ID }} \
-            --set controller.service.annotations.\"service\.beta\.kubernetes\.io/oci-load-balancer-shape\"=\"100Mbps\""
+            --set controller.service.annotations.\"service\.beta\.kubernetes\.io/oci-load-balancer-shape\"=\"100Mbps\" \
+            --set controller.service.annotations.\"service\.beta\.kubernetes\.io/oci-load-balancer-nsg-ids\"=${{ env.LB_NSG_ID }}"
             
           # Only attach the Reserved IP if it is defined in GitHub Variables
           if [ -n "${{ vars.RESERVED_PUBLIC_IP }}" ]; then

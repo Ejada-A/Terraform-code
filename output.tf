@@ -17,3 +17,7 @@ output "load_balancer_subnet_id" {
   description = "The OCID of the public subnet for Load Balancers"
   value       = module.network.load_balancer_subnet_id
 }
+output "load_balancer_nsg_id" {
+  description = "The OCID of the NSG for Load Balancers"
+  value       = module.network.nsg_ids["load_balancer"]
+}
