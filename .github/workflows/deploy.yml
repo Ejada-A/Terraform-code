@@ -111,10 +111,18 @@ jobs:
           export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
           helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
           helm repo update
-          helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+          
+          HELM_CMD="helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
             --namespace ingress-nginx --create-namespace \
-            --set controller.service.annotations."service\.beta\.kubernetes\.io/oci-load-balancer-subnet1"=${{ env.LB_SUBNET_ID }} \
-            --set controller.service.annotations."service\.beta\.kubernetes\.io/oci-load-balancer-shape"="100Mbps"
+            --set controller.service.annotations.\"service\.beta\.kubernetes\.io/oci-load-balancer-subnet1\"=${{ env.LB_SUBNET_ID }} \
+            --set controller.service.annotations.\"service\.beta\.kubernetes\.io/oci-load-balancer-shape\"=\"100Mbps\""
+            
+          # Only attach the Reserved IP if it is defined in GitHub Variables
+          if [ -n "${{ vars.RESERVED_PUBLIC_IP }}" ]; then
+            HELM_CMD="$HELM_CMD --set controller.service.loadBalancerIP=${{ vars.RESERVED_PUBLIC_IP }}"
+          fi
+          
+          eval $HELM_CMD
 
       - name: Install cert-manager
         run: |

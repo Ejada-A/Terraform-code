@@ -110,6 +110,9 @@ metadata:
   {{- end }}
 spec:
   type: {{ .Values.ecommUi.service.type }}
+  {{- if .Values.ecommUi.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.ecommUi.service.loadBalancerIP }}
+  {{- end }}
   selector:
     app: {{ .Values.ecommUi.name }}
   ports:

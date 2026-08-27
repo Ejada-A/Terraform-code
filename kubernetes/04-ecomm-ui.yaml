@@ -110,6 +110,8 @@ metadata:
     service.beta.kubernetes.io/oci-load-balancer-shape: "100Mbps"
 spec:
   type: LoadBalancer
+  # Replace the IP below with your Reserved Public IP from OCI
+  loadBalancerIP: "158.101.255.107"
   selector:
     app: ecomm-ui
   ports:
